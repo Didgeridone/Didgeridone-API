@@ -6,4 +6,6 @@
 
 3. Type `db.tasks.insert({ _id: 1, data: 'data!'});`
 
-4. Visit localhost:3000/api To ensure you see the data displayed as JSON.
+4. Replace line 15 in routes/api.js with `mongoose.connect('mongodb://localhost/didgeridone')`
+
+5. Visit localhost:3000/api To ensure you see the data displayed as JSON.

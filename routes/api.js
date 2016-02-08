@@ -12,7 +12,7 @@ var data = {
 
 
 router.get('/', function(req, res){
-  mongoose.connect(process.env.DATABASE_URL || 'mongodb://localhost/didgeridone')
+  mongoose.connect(process.env.DATABASE_URL)
   var db = mongoose.connection;
   db.on('error', console.error.bind(console, 'connection error:'));
   db.once('open', function(){
