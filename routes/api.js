@@ -3,24 +3,20 @@ var router = express.Router();
 var mongoose = require('mongoose');
 require('dotenv').load()
 
-
-var data = {
-  key1: 'Stuff',
-  key2: 'More stuff'
-}
-
+mongoose.connect(process.env.DATABASE_URL)
+var taskSchema = mongoose.Schema({
+  _id: Number,
+  data: String
+})
 
 
 router.get('/', function(req, res){
-  mongoose.connect(process.env.DATABASE_URL)
-  var db = mongoose.connection;
+  var db = mongoose.createConnection(process.env.DATABASE_URL);
+
   db.on('error', console.error.bind(console, 'connection error:'));
   db.once('open', function(){
     console.log('open')
-    var taskSchema = mongoose.Schema({
-      _id: Number,
-      data: String
-    })
+
     var Task = mongoose.model('Task', taskSchema)
     Task.find(function(err, tasks){
       res.json(tasks)
