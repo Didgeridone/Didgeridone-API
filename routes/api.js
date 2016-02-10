@@ -1,31 +1,29 @@
 var express = require('express')
 var router = express.Router();
-var mongoose = require('mongoose');
+var mongodb = require('mongodb');
 require('dotenv').load()
+var url = process.env.DATABASE_URL || 'mongodb://localhost/didgeridone'
 
-mongoose.connect(process.env.DATABASE_URL)
-var taskSchema = mongoose.Schema({
-  _id: Number,
-  data: String
-})
 
 
 router.get('/', function(req, res){
-  var db = mongoose.createConnection(process.env.DATABASE_URL);
-
-  db.on('error', console.error.bind(console, 'connection error:'));
-  db.once('open', function(){
-    console.log('open')
-
-    var Task = mongoose.model('Task', taskSchema)
-    Task.find(function(err, tasks){
+  mongodb.MongoClient.connect(url, function(err, db){
+    var tasks = db.collection('tasks');
+    tasks.find().toArray(function(err, tasks){
       res.json(tasks)
     })
-
   })
-
-
-
 })
 
+router.post('/', function(req, res){
+  console.log('post!')
+})
+
+router.put('/', function(req, res){
+  console.log('put!')
+})
+
+router.delete('/', function(req, res){
+  console.log('delete!')
+})
 module.exports = router;
