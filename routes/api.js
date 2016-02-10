@@ -1,10 +1,8 @@
+require('dotenv').load()
 var express = require('express')
 var router = express.Router();
 var mongodb = require('mongodb');
-require('dotenv').load()
 var url = process.env.DATABASE_URL || 'mongodb://localhost/didgeridone'
-
-
 
 router.get('/', function(req, res){
   mongodb.MongoClient.connect(url, function(err, db){
@@ -26,4 +24,5 @@ router.put('/', function(req, res){
 router.delete('/', function(req, res){
   console.log('delete!')
 })
+
 module.exports = router;
