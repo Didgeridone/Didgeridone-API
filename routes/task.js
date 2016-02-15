@@ -9,10 +9,10 @@ var url = process.env.DATABASE_URL || 'mongodb://localhost/didgeridone'
 router.get('/:userID', function(req, res) {
   mongodb.connect(url, function(err, db) {
     var tasks = db.collection('tasks')
-    tasks.find().toArray(function(err, tasks) {
-      res.json(tasks)
+    tasks.find({_id: ObjectID(req.params.userID)}).toArray(function(err, user) {
+      res.json(user)
     })
-    db.close()
+    // db.close()
   })
 })
 

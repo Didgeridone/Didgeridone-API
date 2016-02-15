@@ -24,8 +24,6 @@ module.exports = {
   },
   tasks: {
     createTask: function(db, callback) {
-
-
          return mongo.MongoClient.connect(url, function(err, db){
           var tasks = db.collection('tasks');
           tasks.updateOne(
