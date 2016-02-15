@@ -8,24 +8,38 @@ var url = process.env.DATABASE_URL || 'mongodb://localhost/didgeridone'
 
 router.get('/:userID', function(req, res) {
   mongodb.connect(url, function(err, db) {
-    var users = db.collection('users')
-    users.find({"_id": objectID(req.params.userID)}).toArray(function(err, user) {
-      res.json(user)
+    api.tasks.getTasks(db, req.params.userID).then(function(results){
+      res.json(results)
+      db.close();
     })
-    // db.close()
   })
 })
 
 router.post('/:userID', function(req, res) {
-  console.log('post!')
+  mongo.MongoClient.connect(url, function(err, db){
+    api.tasks.createTask(db, req.params.userID, req.body).then(function(results){
+      res.json(results.ops)
+      db.close();
+    })
+  })
 })
 
 router.put('/:userID/:taskID', function(req, res) {
-  console.log('put!')
+  mongodb.MongoClient.connect(url, function(err, db){
+    api.tasks.updateTask(db, req.params.userID, req.body).then(function(results){
+      res.json(results)
+      db.close();
+    })
+  })
 })
 
 router.delete('/:userID/:taskID', function(req, res) {
-  console.log('delete!')
+  mongodb.MongoClient.connect(url, function(err, db){
+    api.tasks.deleteTask(db, req.params.userID, req.body).then(function(results){
+      res.json(results)
+      db.close();
+    })
+  })
 })
 
 module.exports = router;
