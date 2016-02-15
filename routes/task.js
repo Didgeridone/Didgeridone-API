@@ -3,13 +3,13 @@ var api = require('../db/api')
 var express = require('express')
 var router = express.Router()
 var mongodb = require('mongodb').MongoClient
-var objectId = require('mongodb').ObjectID
+var objectID = require('mongodb').ObjectID
 var url = process.env.DATABASE_URL || 'mongodb://localhost/didgeridone'
 
 router.get('/:userID', function(req, res) {
   mongodb.connect(url, function(err, db) {
-    var tasks = db.collection('tasks')
-    tasks.find({_id: ObjectID(req.params.userID)}).toArray(function(err, user) {
+    var users = db.collection('users')
+    users.find({"_id": objectID(req.params.userID)}).toArray(function(err, user) {
       res.json(user)
     })
     // db.close()
