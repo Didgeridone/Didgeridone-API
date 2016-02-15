@@ -7,17 +7,23 @@ var objectId = require('mongodb').ObjectID
 var url = process.env.DATABASE_URL || 'mongodb://localhost/didgeridone'
 
 router.get('/:userID', function(req, res) {
+  //do error testing to make sure user id is specified
   mongodb.connect(url, function(err, db) {
-    var tasks = db.collection('tasks')
-    tasks.find().toArray(function(err, tasks) {
-      res.json(tasks)
+    api.users.getUser(db, req.params.userID).then(function(results) {
+      res.json(results)
+      db.close()
     })
-    db.close()
   })
 })
 
 router.post('/', function(req, res) {
-  console.log('post!')
+  //do error testing on req.body to make sure all fields are good
+  mongodb.connect(url, function(err, db) {
+    api.users.createUser(db, req.body).then(function(results) {
+      res.json(results.ops)
+      db.close()
+    })
+  })
 })
 
 router.put('/:userID', function(req, res) {
