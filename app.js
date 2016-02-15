@@ -7,6 +7,7 @@ var cors = require('cors');
 
 var home = require('./routes/home');
 var api = require('./routes/api');
+var account = require('./routes/account')
 
 var app = express();
 
@@ -21,6 +22,7 @@ app.use(cors());
 
 app.use('/', home);
 app.use('/api', api)
+app.use('/account', account)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
