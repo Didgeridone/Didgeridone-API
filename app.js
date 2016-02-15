@@ -6,8 +6,9 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 
 var home = require('./routes/home');
-var api = require('./routes/api');
-var account = require('./routes/account')
+var task = require('./routes/task');
+var user = require('./routes/user');
+
 
 var app = express();
 
@@ -21,8 +22,8 @@ app.use(cookieParser());
 app.use(cors());
 
 app.use('/', home);
-app.use('/api', api)
-app.use('/account', account)
+app.use('/task', task);
+app.use('/user', user);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
