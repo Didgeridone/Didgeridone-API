@@ -130,7 +130,9 @@ function testUserID(res, id) {
 }
 
 function checkErrorUserData(res, data) {
-  if (!data.first_name || !data.last_name || !data.email) {
+  if (  typeof data.first_name === 'undefined' ||
+        typeof data.last_name === 'undefined' ||
+        typeof data.email === 'undefined') {
     res.json({
       "error": "Invalid PUT or POST format. See below for correct format.",
       "message": {
