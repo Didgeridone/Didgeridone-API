@@ -29,8 +29,7 @@ module.exports = {
   },
   tasks: {
     createTask: function(db, userID, data) {
-    console.log(data);
-     return db.collection('users').update(
+      return db.collection('users').update(
         { _id: userID },
         { $push: { tasks: data } }
       )
@@ -38,18 +37,25 @@ module.exports = {
     getTasks: function(db, userID, data) {
       return db.collection('users').find( { "_id": userID } ).toArray()
     },
+    getTaskCount: function(db, userID) {
+      return db.collection('users').aggregate([
+        { $match: { _id: userID } },
+        { $project: { count: { $size: "$tasks" } } }
+      ]).toArray()
+    },
     updateTask: function(db, userID, taskID, data) {
       var set = {}
+      taskID -= 1
       set['tasks.' + taskID] = data;
       return db.collection('users').update(
         { _id: userID },
         { $set: set }
       )
     },
-    deleteTask: function(db, userID, data) {
+    deleteTask: function(db, userID, taskID) {
       return db.collection('users').updateOne(
         { _id: userID },
-        { $pull: { tasks: { name: data.name } } }
+        { $pull: { tasks: { task_id: parseInt(taskID) } } }
       )
     }
   }

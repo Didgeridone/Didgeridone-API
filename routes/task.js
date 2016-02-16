@@ -51,15 +51,18 @@ router.post('/:userID', function(req, res) {
     req.body.radius = JSON.parse(req.body.radius)
     req.body.done = JSON.parse(req.body.done)
     req.body.enter = JSON.parse(req.body.enter)
-    api.tasks.createTask(db, userID, req.body).then(function(results){
-      if (results.result.nModified === 1) {
-        res.json({ "success": "Successfully created task: " + req.body.name})
-      } else if (results.result.n === 0) {
-        res.json({ "error": "User not found. Task could not be created. "})
-      } else {
-        res.json( { "error": "Task was not created correctly."})
-      }
-      db.close();
+    api.tasks.getTaskCount(db, userID).then(function(results) {
+      req.body.task_id = results[0].count + 1
+      api.tasks.createTask(db, userID, req.body).then(function(results) {
+        if (results.result.nModified === 1) {
+          res.json({ "new_task": req.body })
+        } else if (results.result.n === 0) {
+          res.json({ "error": "User not found. Task could not be created." })
+        } else {
+          res.json({ "error": "Task was not created correctly." })
+        }
+        db.close();
+      })
     }).catch(function(error) {
       res.json({
         "error": "Error creating task.",
@@ -114,7 +117,7 @@ router.delete('/:userID/:taskID', function(req, res) {
   }
 
   mongodb.connect(url, function(err, db){
-    api.tasks.deleteTask(db, req.params.userID, req.body).then(function(results){
+    api.tasks.deleteTask(db, userID, req.params.taskID).then(function(results){
       if (results.result.nModified === 1) {
         res.json({ "success": "Task deleted correctly."})
       } else if (results.result.n === 1) {
