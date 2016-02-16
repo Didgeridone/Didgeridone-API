@@ -8,7 +8,8 @@ var cors = require('cors');
 var home = require('./routes/home');
 var task = require('./routes/task');
 var user = require('./routes/user');
-
+var auth= require('./routes/auth')
+var session = require('express-session')
 
 var app = express();
 
@@ -19,11 +20,36 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(cors());
+app.use(cors({
+  //TODO change origin once deployed
+  origin: 'http://localhost:8080',
+  methods: ['GET', 'PUT', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}
+));
+
+app.use(session({
+  secret:process.env.COOKIE_SECRET,
+  resave:true,
+  saveUninitialized:true
+}));
+
+app.use(auth.passport.initialize());
+app.use(auth.passport.session());
+
+auth.passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+auth.passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 app.use('/', home);
 app.use('/task', task);
 app.use('/user', user);
+app.use('/auth', auth.router)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
