@@ -154,8 +154,20 @@ function testUserID(res, id) {
 }
 
 function checkErrorTaskData(res, data) {
-  if (!data.name || !data.lat || !data.long || !data.radius ||
-          !data.done || !data.enter) {
+  console.log(data);
+  console.log(!data.name);
+  console.log(!data.lat);
+  console.log(!data.long);
+  console.log(!data.radius);
+  console.log(typeof data.done);
+  console.log(typeof data.enter);
+
+  if (  typeof data.name === 'undefined' ||
+        typeof data.lat === 'undefined' ||
+        typeof data.long === 'undefined' ||
+        typeof data.radius === 'undefined' ||
+        typeof data.done === 'undefined' ||
+        typeof data.enter === 'undefined') {
     res.json({
       "error": "Invalid PUT or POST format. See below for correct format.",
       "message": {
