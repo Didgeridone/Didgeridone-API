@@ -45,12 +45,12 @@ module.exports = {
       ]).toArray()
     },
     updateTask: function(db, userID, taskID, data) {
-      var set = {}
-      taskID -= 1
-      set['tasks.' + taskID] = data;
       return db.collection('users').update(
-        { _id: userID },
-        { $set: set }
+        { _id: userID,
+        "tasks.task_id": parseInt(taskID) },
+        { $set: {
+          "tasks.$": data
+        } }
       )
     },
     deleteTask: function(db, userID, taskID) {
