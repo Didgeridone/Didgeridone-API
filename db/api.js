@@ -31,10 +31,12 @@ module.exports = {
     getTasks: function(db, userID, data) {
       return db.collection('users').find( {"_id": ObjectID(userID) } ).toArray()
     },
-    updateTask: function(db, userID, taskID) {
-      return db.collection('users').updateOne(
-        {_id: userID},
-        {$set: {tasks: data}}
+    updateTask: function(db, userID, taskID, data) {
+      var set = {}
+      set['tasks.'+taskID]= data;
+      return db.collection('users').update(
+        {_id: ObjectID(userID)},
+        {$set: set}
       )
     },
     deleteTask: function(db, userId, data) {

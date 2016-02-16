@@ -27,7 +27,7 @@ router.post('/:userID', function(req, res) {
 
 router.put('/:userID/:taskID', function(req, res) {
   mongodb.connect(url, function(err, db){
-    api.tasks.updateTask(db, req.params.userID, req.body.taskID).then(function(results){
+    api.tasks.updateTask(db, req.params.userID, req.params.taskID, req.body).then(function(results){
       res.json(results)
       db.close();
     })
