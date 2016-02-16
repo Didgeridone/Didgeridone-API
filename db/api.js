@@ -29,25 +29,26 @@ module.exports = {
   },
   tasks: {
     createTask: function(db, userID, data) {
+    console.log(data);
      return db.collection('users').update(
-        { _id: ObjectID(userID) },
+        { _id: userID },
         { $push: { tasks: data } }
       )
     },
     getTasks: function(db, userID, data) {
-      return db.collection('users').find( { "_id": ObjectID(userID) } ).toArray()
+      return db.collection('users').find( { "_id": userID } ).toArray()
     },
     updateTask: function(db, userID, taskID, data) {
       var set = {}
       set['tasks.' + taskID] = data;
       return db.collection('users').update(
-        { _id: ObjectID(userID) },
+        { _id: userID },
         { $set: set }
       )
     },
     deleteTask: function(db, userID, data) {
       return db.collection('users').updateOne(
-        { _id: ObjectID(userID) },
+        { _id: userID },
         { $pull: { tasks: { name: data.name } } }
       )
     }
