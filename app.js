@@ -21,9 +21,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(cors({
-  //TODO change origin once deployed
-  origin: 'http://localhost:8080',
-  methods: ['GET', 'PUT', 'POST'],
+  origin: process.env.CLIENT_HOST,
+  methods: ['GET', 'PUT', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }
