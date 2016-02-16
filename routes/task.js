@@ -51,6 +51,7 @@ router.post('/:userID', function(req, res) {
     req.body.radius = JSON.parse(req.body.radius)
     req.body.done = JSON.parse(req.body.done)
     req.body.enter = JSON.parse(req.body.enter)
+
     api.tasks.getTaskCount(db, userID).then(function(results) {
       req.body.task_id = results[0].count + 1
       api.tasks.createTask(db, userID, req.body).then(function(results) {
