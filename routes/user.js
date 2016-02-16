@@ -19,7 +19,7 @@ router.get('/:userID', function(req, res) {
       if (results.length < 1) {
         res.json({ "error": "Could not find user" })
       } else {
-        res.json({ "user": results[0]})
+        res.json({ "user": results[0] })
       }
       db.close()
     }).catch(function(error) {
