@@ -21,52 +21,29 @@ module.exports = {
     }
   },
   tasks: {
-    createTask: function(db, callback) {
-         return mongo.MongoClient.connect(url, function(err, db){
-          var tasks = db.collection('tasks');
-          tasks.updateOne(
-            {_id: 2},
-            {$push: {tasks: newTasks}}
-          )
-        })
-
+    createTask: function(db, userID, data) {
+      console.log(data)
+     return db.collection('users').update(
+        {_id: ObjectID(userID)},
+        {$push: {tasks: data}}
+      )
     },
-    getTasks: function(db, callback) {
-        mongodb.MongoClient.connect(url, function(err, db){
-          var tasks = db.collection('tasks');
-          tasks.find().toArray(function(err, tasks){
-            res.json(tasks)
-          })
-        })
-
+    getTasks: function(db, userID, data) {
+      return db.collection('users').find( {"_id": ObjectID(userID) } ).toArray()
     },
-    updateTask: function(db, callback) {
-
-        mongodb.MongoClient.connect(url, function(err, db){
-          var tasks = db.collection('tasks');
-
-          tasks.updateOne(
-            {_id: 1},
-            {$set: {tasks: newTasks}}
-          )
-          res.json('Success!')
-        })
-
-
-
+    updateTask: function(db, userID, taskID, data) {
+      var set = {}
+      set['tasks.'+taskID]= data;
+      return db.collection('users').update(
+        {_id: ObjectID(userID)},
+        {$set: set}
+      )
     },
-    deleteTask: function(db, callback) {
-
-      return mongodb.MongoClient.connect(url, function(err, db){
-        var tasks = db.collection('tasks');
-
-        tasks.updateOne(
-          {_id: 1},
-          {$set: {tasks: newTasks}}
+    deleteTask: function(db, userId, data) {
+      return db.collection('users').updateOne(
+          {_id: userID},
+          {$set: {tasks: data.tasks}}
         )
-        res.json('Success!')
-      })
-
     }
   }
 }
