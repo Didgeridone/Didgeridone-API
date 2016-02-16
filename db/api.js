@@ -1,5 +1,3 @@
-var ObjectID = require('mongodb').ObjectID
-
 module.exports = {
   users: {
     createUser: function(db, data) {
@@ -11,13 +9,22 @@ module.exports = {
       })
     },
     getUser: function(db, userID) {
-      return db.collection('users').find( { "_id": ObjectID(userID) } ).toArray()
+      return db.collection('users').find( { "_id": userID } ).toArray()
     },
-    updateUser: function(db, callback) {
-
+    updateUser: function(db, userID, data) {
+      return db.collection('users').update(
+        { _id: userID },
+        {
+          $set: {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email
+          }
+        }
+      )
     },
-    deleteUser: function(db, callback) {
-
+    deleteUser: function(db, userID) {
+      return db.collection('users').deleteOne( { "_id": userID })
     }
   },
   tasks: {
