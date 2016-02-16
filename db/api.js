@@ -22,18 +22,19 @@ module.exports = {
   },
   tasks: {
     createTask: function(db, userID, data) {
-     return db.collection('users').updateOne(
-        {_id: userID},
-        {$push: {tasks: data.task}}
+      console.log(data)
+     return db.collection('users').update(
+        {_id: ObjectID(userID)},
+        {$push: {tasks: data}}
       )
     },
     getTasks: function(db, userID, data) {
       return db.collection('users').find( {"_id": ObjectID(userID) } ).toArray()
     },
-    updateTask: function(db, userID, data) {
+    updateTask: function(db, userID, taskID) {
       return db.collection('users').updateOne(
         {_id: userID},
-        {$set: {tasks: data.tasks}}
+        {$set: {tasks: data}}
       )
     },
     deleteTask: function(db, userId, data) {
