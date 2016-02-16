@@ -39,10 +39,12 @@ module.exports = {
         {$set: set}
       )
     },
-    deleteTask: function(db, userId, data) {
+    deleteTask: function(db, userID, data) {
+      console.log('data.name', data.name)
+
       return db.collection('users').updateOne(
-          {_id: userID},
-          {$set: {tasks: data.tasks}}
+          {_id: ObjectID(userID)},
+          {$pull: {tasks: {name: data.name}}}
         )
     }
   }
