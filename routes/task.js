@@ -44,6 +44,7 @@ router.post('/:userID', function(req, res) {
   }
 
   if (checkErrorTaskData(res, req.body)) {
+    console.log(req.body)
     return
   }
 
