@@ -26,6 +26,9 @@ module.exports = {
     },
     deleteUser: function(db, userID) {
       return db.collection('users').deleteOne( { "_id": userID } )
+    },
+    findUser: function(db, email) {
+      return db.collection('users').find( { "email": email } ).toArray()
     }
   },
   tasks: {
