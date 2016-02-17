@@ -163,9 +163,7 @@ function checkErrorTaskData(res, data) {
         typeof data.long === 'undefined' ||
         typeof data.radius === 'undefined' ||
         typeof data.done === 'undefined' ||
-        typeof data.enter === 'undefined' ||
-        // typeof data.task_id === 'undefined'
-      ) {
+        typeof data.enter === 'undefined') {
     res.json({
       "error": "Invalid PUT or POST format. See below for correct format.",
       "message": {
