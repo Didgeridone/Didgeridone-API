@@ -47,7 +47,7 @@ module.exports = {
     updateTask: function(db, userID, taskID, data) {
       return db.collection('users').update(
         { _id: userID,
-        "tasks.task_id": parseInt(taskID) },
+        "tasks.task_id": taskID },
         { $set: {
           "tasks.$": data
         } }
@@ -56,7 +56,7 @@ module.exports = {
     deleteTask: function(db, userID, taskID) {
       return db.collection('users').updateOne(
         { _id: userID },
-        { $pull: { tasks: { task_id: parseInt(taskID) } } }
+        { $pull: { tasks: { task_id: taskID } } }
       )
     }
   }

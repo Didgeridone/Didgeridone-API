@@ -15,23 +15,24 @@ router.get('/:userID', function(req, res) {
   }
 
   mongodb.connect(url, function(err, db) {
-    api.tasks.getTasks(db, userID).then(function(results){
-      if (results.length < 1) {
-        res.json({ "error": "Could not find user" })
-      } else {
-        res.json({ "user": {
-          "_id": results[0]._id,
-          "tasks": results[0].tasks
-        }})
-      }
-      db.close();
-    }).catch(function(error) {
-      res.json({
-        "error": "Error locating task.",
-        "message": error
+    api.tasks.getTasks(db, userID)
+      .then(function(results){
+        if (results.length < 1) {
+          res.json({ "error": "Could not find user" })
+        } else {
+          res.json({ "user": {
+            "_id": results[0]._id,
+            "tasks": results[0].tasks
+          }})
+        }
+        db.close();
+      }).catch(function(error) {
+        res.json({
+          "error": "Error locating task.",
+          "message": error
+        })
+        db.close()
       })
-      db.close()
-    })
   })
 })
 
@@ -52,10 +53,9 @@ router.post('/:userID', function(req, res) {
     req.body.radius = JSON.parse(req.body.radius)
     req.body.done = JSON.parse(req.body.done)
     req.body.enter = JSON.parse(req.body.enter)
-
-    api.tasks.getTaskCount(db, userID).then(function(results) {
-      req.body.task_id = results[0].count + 1
-      api.tasks.createTask(db, userID, req.body).then(function(results) {
+    req.body.task_id = ObjectID()
+    api.tasks.createTask(db, userID, req.body)
+      .then(function(results) {
         if (results.result.nModified === 1) {
           res.json({ "new_task": req.body })
         } else if (results.result.n === 0) {
@@ -64,22 +64,21 @@ router.post('/:userID', function(req, res) {
           res.json({ "error": "Task was not created correctly." })
         }
         db.close();
+      }).catch(function(error) {
+        res.json({
+          "error": "Error creating task.",
+          "message": error
+        })
+        db.close()
       })
-    }).catch(function(error) {
-      res.json({
-        "error": "Error creating task.",
-        "message": error
-      })
-      db.close()
-    })
   })
 })
 
 /* Route to update a task for a user */
 router.put('/:userID/:taskID', function(req, res) {
-  var results = testUserID(res, req.params.userID)
-  var userID = results.userID
-  if (results.error) {
+  var userIdResults = testUserID(res, req.params.userID)
+  var userID = userIdResults.userID
+  if (userIdResults.error) {
     return
   }
 
@@ -91,22 +90,24 @@ router.put('/:userID/:taskID', function(req, res) {
     req.body.radius = JSON.parse(req.body.radius)
     req.body.done = JSON.parse(req.body.done)
     req.body.enter = JSON.parse(req.body.enter)
-    api.tasks.updateTask(db, userID, req.params.taskID, req.body).then(function(results){
-      if (results.result.nModified === 1) {
-        res.json({ "success": "Task updated correctly."})
-      } else if (results.result.n === 1) {
-        res.json({ "error": "Task not updated."})
-      } else {
-        res.json({ "error": "User not found."})
-      }
-      db.close();
-    }).catch(function(error) {
-      res.json({
-        "error": "Error updating task.",
-        "message": error
+    req.body.task_id = ObjectID(req.body.task_id)
+    api.tasks.updateTask(db, userID, ObjectID(req.params.taskID), req.body)
+      .then(function(results) {
+        if (results.result.nModified === 1) {
+          res.json({ "success": "Task updated correctly."})
+        } else if (results.result.n === 1) {
+          res.json({ "error": "Task not updated."})
+        } else {
+          res.json({ "error": "User not found."})
+        }
+        db.close();
+      }).catch(function(error) {
+        res.json({
+          "error": "Error updating task.",
+          "message": error
+        })
+        db.close()
       })
-      db.close()
-    })
   })
 })
 
@@ -119,22 +120,23 @@ router.delete('/:userID/:taskID', function(req, res) {
   }
 
   mongodb.connect(url, function(err, db){
-    api.tasks.deleteTask(db, userID, req.params.taskID).then(function(results){
-      if (results.result.nModified === 1) {
-        res.json({ "success": "Task deleted correctly."})
-      } else if (results.result.n === 1) {
-        res.json({ "error": "Task not deleted."})
-      } else {
-        res.json({ "error": "User not found."})
-      }
-      db.close();
-    }).catch(function(error) {
-      res.json({
-        "error": "Error deleting task.",
-        "message": error
+    api.tasks.deleteTask(db, userID, ObjectID(req.params.taskID))
+      .then(function(results){
+        if (results.result.nModified === 1) {
+          res.json({ "success": "Task deleted correctly."})
+        } else if (results.result.n === 1) {
+          res.json({ "error": "Task not deleted."})
+        } else {
+          res.json({ "error": "User not found."})
+        }
+        db.close();
+      }).catch(function(error) {
+        res.json({
+          "error": "Error deleting task.",
+          "message": error
+        })
+        db.close()
       })
-      db.close()
-    })
   })
 })
 
@@ -161,7 +163,9 @@ function checkErrorTaskData(res, data) {
         typeof data.long === 'undefined' ||
         typeof data.radius === 'undefined' ||
         typeof data.done === 'undefined' ||
-        typeof data.enter === 'undefined') {
+        typeof data.enter === 'undefined' ||
+        // typeof data.task_id === 'undefined'
+      ) {
     res.json({
       "error": "Invalid PUT or POST format. See below for correct format.",
       "message": {
@@ -172,7 +176,8 @@ function checkErrorTaskData(res, data) {
           "long": "TASK LONGITUDE",
           "radius": 10,
           "done": true,
-          "enter": false
+          "enter": false,
+          "task_id": "56c3ac5320f2bbb6252eba67"
         }
       }
     })
