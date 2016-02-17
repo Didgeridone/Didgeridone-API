@@ -1,10 +1,8 @@
-require('dotenv').load()
 var api = require('../db/api')
 var express = require('express')
 var router = express.Router()
-var mongodb = require('mongodb').MongoClient
+var db = require('../db/dbconnect')
 var ObjectID = require('mongodb').ObjectID
-var url = process.env.DATABASE_URL || 'mongodb://localhost/didgeridone'
 
 /* Route to retrieve information for a user account */
 router.get('/:userID', function(req, res) {
@@ -14,20 +12,16 @@ router.get('/:userID', function(req, res) {
     return
   }
 
-  mongodb.connect(url, function(error, db) {
-    api.users.getUser(db, userID).then(function(results) {
-      if (results.length < 1) {
-        res.json({ "error": "Could not find user" })
-      } else {
-        res.json({ "user": results[0] })
-      }
-      db.close()
-    }).catch(function(error) {
-      res.json({
-        "error": "Error locating user: " + req.params.userID,
-        "message": error
-      })
-      db.close()
+  api.users.getUser(db.get(), userID).then(function(results) {
+    if (results.length < 1) {
+      res.json({ "error": "Could not find user" })
+    } else {
+      res.json({ "user": results[0] })
+    }
+  }).catch(function(error) {
+    res.json({
+      "error": "Error locating user: " + req.params.userID,
+      "message": error
     })
   })
 })
@@ -38,16 +32,12 @@ router.post('/', function(req, res) {
     return
   }
 
-  mongodb.connect(url, function(err, db) {
-    api.users.createUser(db, req.body).then(function(results) {
-      res.json({ 'created_user': results.ops[0] })
-      db.close()
-    }).catch(function(error) {
-      res.json({
-        "error": "Error creating user.",
-        "message": error
-      })
-      db.close()
+  api.users.createUser(db.get(), req.body).then(function(results) {
+    res.json({ 'created_user': results.ops[0] })
+  }).catch(function(error) {
+    res.json({
+      "error": "Error creating user.",
+      "message": error
     })
   })
 })
@@ -64,22 +54,18 @@ router.put('/:userID', function(req, res) {
     return
   }
 
-  mongodb.connect(url, function(err, db) {
-    api.users.updateUser(db, userID, req.body).then(function(results) {
-      if (results.result.nModified === 1) {
-        res.json({ "success": "User updated correctly."})
-      } else if (results.result.n === 1) {
-        res.json({ "error": "User not updated."})
-      } else {
-        res.json({ "error": "User not found."})
-      }
-      db.close()
-    }).catch(function(error) {
-      res.json({
-        "error": "Error updating user.",
-        "message": error
-      })
-      db.close()
+  api.users.updateUser(db.get(), userID, req.body).then(function(results) {
+    if (results.result.nModified === 1) {
+      res.json({ "success": "User updated correctly."})
+    } else if (results.result.n === 1) {
+      res.json({ "error": "User not updated."})
+    } else {
+      res.json({ "error": "User not found."})
+    }
+  }).catch(function(error) {
+    res.json({
+      "error": "Error updating user.",
+      "message": error
     })
   })
 })
@@ -92,22 +78,18 @@ router.delete('/:userID', function(req, res) {
     return
   }
 
-  mongodb.connect(url, function(err, db) {
-    api.users.deleteUser(db, userID).then(function(results) {
-      if (results.deletedCount === 1) {
-        res.json({ "success": "User deleted successfully."})
-      } else if (results.result.n === 0) {
-        res.json({ "error": "User not found."})
-      } else {
-        res.json({ "error": "User not deleted correctly."})
-      }
-      db.close()
-    }).catch(function(error) {
-      res.json({
-        "error": "Error deleting user.",
-        "message": error
-      })
-      db.close()
+  api.users.deleteUser(db.get(), userID).then(function(results) {
+    if (results.deletedCount === 1) {
+      res.json({ "success": "User deleted successfully."})
+    } else if (results.result.n === 0) {
+      res.json({ "error": "User not found."})
+    } else {
+      res.json({ "error": "User not deleted correctly."})
+    }
+  }).catch(function(error) {
+    res.json({
+      "error": "Error deleting user.",
+      "message": error
     })
   })
 })
