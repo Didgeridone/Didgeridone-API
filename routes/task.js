@@ -44,7 +44,7 @@ router.post('/:userID', function(req, res) {
     return
   }
 
-  if (checkErrorTaskData(res, req.body)) {
+  if (checkErrorTaskDataPost(res, req.body)) {
     console.log(req.body)
     return
   }
@@ -82,7 +82,7 @@ router.put('/:userID/:taskID', function(req, res) {
     return
   }
 
-  if (checkErrorTaskData(res, req.body)) {
+  if (checkErrorTaskDataPut(res, req.body)) {
     return
   }
 
@@ -157,7 +157,7 @@ function testUserID(res, id) {
   return results
 }
 
-function checkErrorTaskData(res, data) {
+function checkErrorTaskDataPost(res, data) {
   if (  typeof data.name === 'undefined' ||
         typeof data.lat === 'undefined' ||
         typeof data.long === 'undefined' ||
@@ -165,7 +165,34 @@ function checkErrorTaskData(res, data) {
         typeof data.done === 'undefined' ||
         typeof data.enter === 'undefined') {
     res.json({
-      "error": "Invalid PUT or POST format. See below for correct format.",
+      "error": "Invalid POST format. See below for correct format.",
+      "message": {
+        "format": "Format must contain all fields as a JSON object.",
+        "correct_format": {
+          "name": "TASK NAME",
+          "lat": "TASK LATITUDE",
+          "long": "TASK LONGITUDE",
+          "radius": 10,
+          "done": true,
+          "enter": false
+        }
+      }
+    })
+    return true
+  }
+  return false
+}
+
+function checkErrorTaskDataPut(res, data) {
+  if (  typeof data.name === 'undefined' ||
+        typeof data.lat === 'undefined' ||
+        typeof data.long === 'undefined' ||
+        typeof data.radius === 'undefined' ||
+        typeof data.done === 'undefined' ||
+        typeof data.enter === 'undefined' ||
+        typeof data.task_id === 'undefined') {
+    res.json({
+      "error": "Invalid PUT format. See below for correct format.",
       "message": {
         "format": "Format must contain all fields as a JSON object.",
         "correct_format": {
