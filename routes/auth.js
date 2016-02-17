@@ -1,4 +1,3 @@
-require('dotenv').load()
 var api = require('../db/api')
 var mongodb = require('mongodb').MongoClient
 var ObjectID = require('mongodb').ObjectID

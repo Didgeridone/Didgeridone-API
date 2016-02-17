@@ -1,4 +1,3 @@
-require('dotenv').load()
 var api = require('../db/api')
 var express = require('express')
 var router = express.Router()
