@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
+var db = require('./db/dbconnect')
 
 var home = require('./routes/home');
 var task = require('./routes/task');
@@ -13,6 +14,14 @@ var auth= require('./routes/auth')
 var session = require('express-session')
 
 var app = express();
+
+var url = process.env.DATABASE_URL || 'mongodb://localhost/didgeridone'
+db.connect(url, function(err) {
+  if (err) {
+    console.log('Error connecting to MongoDB');
+    process.exit(1)
+  }
+})
 
 app.set('json spaces', 2);
 
