@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(cors({
-  origin: process.env.CLIENT_HOST,
+  origin: ["https://didgeridone.firebaseapp.com", process.env.CLIENT_HOST],
   methods: ['GET', 'PUT', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
