@@ -38,14 +38,6 @@ app.use(cors({
 app.use(auth.passport.initialize())
 app.use(auth.authenticate)
 
-auth.passport.serializeUser(function(user, done) {
-  done(null, user)
-})
-
-auth.passport.deserializeUser(function(user, done) {
-  done(null, user)
-})
-
 app.use('/', home)
 app.use('/task', task)
 app.use('/user', user)
