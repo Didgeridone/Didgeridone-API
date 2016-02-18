@@ -27,20 +27,20 @@ router.get('/:userID', function(req, res) {
 })
 
 /* Route to create a user account */
-router.post('/', function(req, res) {
-  if (checkErrorUserData(res, req.body)) {
-    return
-  }
-
-  api.users.createUser(db.get(), req.body).then(function(results) {
-    res.json({ 'created_user': results.ops[0] })
-  }).catch(function(error) {
-    res.json({
-      "error": "Error creating user.",
-      "message": error
-    })
-  })
-})
+// router.post('/', function(req, res) {
+//   if (checkErrorUserData(res, req.body)) {
+//     return
+//   }
+//
+//   api.users.createUser(db.get(), req.body).then(function(results) {
+//     res.json({ 'created_user': results.ops[0] })
+//   }).catch(function(error) {
+//     res.json({
+//       "error": "Error creating user.",
+//       "message": error
+//     })
+//   })
+// })
 
 /* Route to update a user account */
 router.put('/:userID', function(req, res) {
@@ -112,16 +112,12 @@ function testUserID(res, id) {
 }
 
 function checkErrorUserData(res, data) {
-  if (  typeof data.first_name === 'undefined' ||
-        typeof data.last_name === 'undefined' ||
-        typeof data.email === 'undefined') {
+  if (typeof data.email === 'undefined') {
     res.json({
       "error": "Invalid PUT or POST format. See below for correct format.",
       "message": {
         "format": "Format must contain all three fields as a JSON object.",
         "correct_format": {
-          "first_name": "USER FIRST NAME",
-          "last_name": "USER LAST NAME",
           "email": "USER EMAIL"
         }
       }
