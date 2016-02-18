@@ -128,20 +128,21 @@ module.exports = {
   passport: passport,
   authenticate: function(req, res, next) {
     passport.authenticate('bearer', function(err, user, info) {
-      if (req.url === '/auth/login' || req.url === '/auth/signup') {
-        next()
-      } else {
-        req.user = user
-        if (req.user) {
-          next()
-        } else {
-          res.status(401)
-          res.json({
-            "error": "API call not allowed.",
-            "message": "You must be authenticated to make this API call. Please authenticate."
-          })
-        }
-      }
+      next()
+      // if (req.url === '/auth/login' || req.url === '/auth/signup') {
+      //   next()
+      // } else {
+      //   req.user = user
+      //   if (req.user) {
+      //     next()
+      //   } else {
+      //     res.status(401)
+      //     res.json({
+      //       "error": "API call not allowed.",
+      //       "message": "You must be authenticated to make this API call. Please authenticate."
+      //     })
+      //   }
+      // }
     })(req, res, next)
   }
 }
