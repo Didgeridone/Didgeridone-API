@@ -5,123 +5,90 @@ var db = require('../db/dbconnect')
 var ObjectID = require('mongodb').ObjectID
 
 /* Route to retrieve information for a user account */
-router.get('/:userID', function(req, res) {
+router.get('/:userID', function(req, res, next) {
   var results = testUserID(res, req.params.userID)
-  var userID = results.userID
-  if (results.error) {
-    return
+  if (!results.userID) {
+    return next(results)
   }
+  var userID = results.userID
 
   api.users.getUser(db.get(), userID).then(function(results) {
     if (results.length < 1) {
-      res.json({ "error": "Could not find user" })
+      next(new Error("Could not find the user: " + req.params.userID))
     } else {
       res.json({ "user": results[0] })
     }
   }).catch(function(error) {
-    res.json({
-      "error": "Error locating user: " + req.params.userID,
-      "message": error
-    })
-  })
-})
-
-/* Route to create a user account */
-router.post('/', function(req, res) {
-  if (checkErrorUserData(res, req.body)) {
-    return
-  }
-
-  api.users.createUser(db.get(), req.body).then(function(results) {
-    res.json({ 'created_user': results.ops[0] })
-  }).catch(function(error) {
-    res.json({
-      "error": "Error creating user.",
-      "message": error
-    })
+    next(error)
   })
 })
 
 /* Route to update a user account */
-router.put('/:userID', function(req, res) {
+router.put('/:userID', function(req, res, next) {
   var results = testUserID(res, req.params.userID)
-  var userID = results.userID
-  if (results.error) {
-    return
+  if (!results.userID) {
+    return next(results)
   }
+  var userID = results.userID
 
   if (checkErrorUserData(res, req.body)) {
-    return
+    return next()
   }
 
   api.users.updateUser(db.get(), userID, req.body).then(function(results) {
     if (results.result.nModified === 1) {
       res.json({ "success": "User updated correctly."})
     } else if (results.result.n === 1) {
-      res.json({ "error": "User not updated."})
+      next(new Error('User not updated correctly.'))
     } else {
-      res.json({ "error": "User not found."})
+      next(new Error('User was not found.'))
     }
   }).catch(function(error) {
-    res.json({
-      "error": "Error updating user.",
-      "message": error
-    })
+    next(error)
   })
 })
 
 /* Route to delete a user account */
-router.delete('/:userID', function(req, res) {
+router.delete('/:userID', function(req, res, next) {
   var results = testUserID(res, req.params.userID)
-  var userID = results.userID
-  if (results.error) {
-    return
+  if (!results.userID) {
+    return next(results)
   }
+  var userID = results.userID
 
   api.users.deleteUser(db.get(), userID).then(function(results) {
     if (results.deletedCount === 1) {
       res.json({ "success": "User deleted successfully."})
     } else if (results.result.n === 0) {
-      res.json({ "error": "User not found."})
+      next(new Error("User was not found."))
     } else {
-      res.json({ "error": "User not deleted correctly."})
+      next(new Error("User not deleted correctly."))
     }
   }).catch(function(error) {
-    res.json({
-      "error": "Error deleting user.",
-      "message": error
-    })
+    next(error)
   })
 })
 
 module.exports = router;
 
 function testUserID(res, id) {
-  var results = {}
   try {
+    var results = {}
     results.userID = ObjectID(id)
+    return results
   }
   catch(error) {
-    results.error = true
-    res.json({
-      "error": "Invalid user ID.",
-      "message": error.toString()
-    })
+    return new Error('Invalid user ID. ' + error.message + '.')
   }
-  return results
 }
 
 function checkErrorUserData(res, data) {
-  if (  typeof data.first_name === 'undefined' ||
-        typeof data.last_name === 'undefined' ||
-        typeof data.email === 'undefined') {
+  if (typeof data.email === 'undefined') {
     res.json({
       "error": "Invalid PUT or POST format. See below for correct format.",
       "message": {
         "format": "Format must contain all three fields as a JSON object.",
         "correct_format": {
-          "first_name": "USER FIRST NAME",
-          "last_name": "USER LAST NAME",
           "email": "USER EMAIL"
         }
       }

@@ -2,10 +2,8 @@ module.exports = {
   users: {
     createUser: function(db, data) {
       return db.collection('users').insertOne({
-        "first_name": data.first_name,
-        "last_name": data.last_name,
         "email": data.email,
-        "oauthID": data.oauthID,
+        "password": data.password,
         "tasks" : []
       })
     },
@@ -17,8 +15,6 @@ module.exports = {
         { _id: userID },
         {
           $set: {
-            first_name: data.first_name,
-            last_name: data.last_name,
             email: data.email
           }
         }
@@ -26,6 +22,9 @@ module.exports = {
     },
     deleteUser: function(db, userID) {
       return db.collection('users').deleteOne( { "_id": userID } )
+    },
+    findUser: function(db, email) {
+      return db.collection('users').find( { "email": email } ).toArray()
     }
   },
   tasks: {
