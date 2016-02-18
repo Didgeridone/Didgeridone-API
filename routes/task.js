@@ -5,17 +5,17 @@ var db = require('../db/dbconnect')
 var ObjectID = require('mongodb').ObjectID
 
 /* Route to retrieve information for a user's task */
-router.get('/:userID', function(req, res) {
+router.get('/:userID', function(req, res, next) {
   var results = testUserID(res, req.params.userID)
-  var userID = results.userID
-  if (results.error) {
-    return
+  if (!results.userID) {
+    return next(results)
   }
+  var userID = results.userID
 
   api.tasks.getTasks(db.get(), userID)
     .then(function(results){
       if (results.length < 1) {
-        res.json({ "error": "Could not find user" })
+        next(new Error('Could not locate task because the user was not found.'))
       } else {
         res.json({ "user": {
           "_id": results[0]._id,
@@ -23,23 +23,20 @@ router.get('/:userID', function(req, res) {
         }})
       }
     }).catch(function(error) {
-      res.json({
-        "error": "Error locating task.",
-        "message": error
-      })
+      next(error)
     })
 })
 
 /* Route to create a task for a user */
-router.post('/:userID', function(req, res) {
+router.post('/:userID', function(req, res, next) {
   var results = testUserID(res, req.params.userID)
-  var userID = results.userID
-  if (results.error) {
-    return
+  if (!results.userID) {
+    return next(results)
   }
+  var userID = results.userID
 
   if (checkErrorTaskDataPost(res, req.body)) {
-    return
+    return next()
   }
 
   req.body.radius = JSON.parse(req.body.radius)
@@ -51,25 +48,22 @@ router.post('/:userID', function(req, res) {
       if (results.result.nModified === 1) {
         res.json({ "new_task": req.body })
       } else if (results.result.n === 0) {
-        res.json({ "error": "User not found. Task could not be created." })
+        next(new Error("User not found. The task could not be created."))
       } else {
-        res.json({ "error": "Task was not created correctly." })
+        next(new Error("The task was not created correctly."))
       }
     }).catch(function(error) {
-      res.json({
-        "error": "Error creating task.",
-        "message": error
-      })
+      next(error)
     })
 })
 
 /* Route to update a task for a user */
-router.put('/:userID/:taskID', function(req, res) {
-  var userIdResults = testUserID(res, req.params.userID)
-  var userID = userIdResults.userID
-  if (userIdResults.error) {
-    return
+router.put('/:userID/:taskID', function(req, res, next) {
+  var results = testUserID(res, req.params.userID)
+  if (!results.userID) {
+    return next(results)
   }
+  var userID = results.userID
 
   if (checkErrorTaskDataPut(res, req.body)) {
     return
@@ -84,58 +78,48 @@ router.put('/:userID/:taskID', function(req, res) {
       if (results.result.nModified === 1) {
         res.json({ "success": "Task updated correctly."})
       } else if (results.result.n === 1) {
-        res.json({ "error": "Task not updated."})
+        next(new Error("Task not updated correctly."))
       } else {
-        res.json({ "error": "User not found."})
+        next(new Error("Task was not updated correctly because user was not found."))
       }
     }).catch(function(error) {
-      res.json({
-        "error": "Error updating task.",
-        "message": error
-      })
+      next(error)
     })
 })
 
 /* Route to delete a task for a user */
 router.delete('/:userID/:taskID', function(req, res) {
   var results = testUserID(res, req.params.userID)
-  var userID = results.userID
-  if (results.error) {
-    return
+  if (!results.userID) {
+    return next(results)
   }
+  var userID = results.userID
 
   api.tasks.deleteTask(db.get(), userID, ObjectID(req.params.taskID))
     .then(function(results){
       if (results.result.nModified === 1) {
         res.json({ "success": "Task deleted correctly."})
       } else if (results.result.n === 1) {
-        res.json({ "error": "Task not deleted."})
+        next(new Error("Task not deleted correctly."))
       } else {
-        res.json({ "error": "User not found."})
+        next(new Error("Task not deleted because user was not found."))
       }
     }).catch(function(error) {
-      res.json({
-        "error": "Error deleting task.",
-        "message": error
-      })
+      next(error)
     })
 })
 
 module.exports = router;
 
 function testUserID(res, id) {
-  var results = {}
   try {
+    var results = {}
     results.userID = ObjectID(id)
+    return results
   }
   catch(error) {
-    results.error = true
-    res.json({
-      "error": "Invalid user ID.",
-      "message": error.toString()
-    })
+    return new Error('Invalid user ID. ' + error.message + '.')
   }
-  return results
 }
 
 function checkErrorTaskDataPost(res, data) {
