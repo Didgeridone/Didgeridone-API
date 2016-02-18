@@ -26,22 +26,6 @@ router.get('/:userID', function(req, res) {
   })
 })
 
-/* Route to create a user account */
-// router.post('/', function(req, res) {
-//   if (checkErrorUserData(res, req.body)) {
-//     return
-//   }
-//
-//   api.users.createUser(db.get(), req.body).then(function(results) {
-//     res.json({ 'created_user': results.ops[0] })
-//   }).catch(function(error) {
-//     res.json({
-//       "error": "Error creating user.",
-//       "message": error
-//     })
-//   })
-// })
-
 /* Route to update a user account */
 router.put('/:userID', function(req, res) {
   var results = testUserID(res, req.params.userID)

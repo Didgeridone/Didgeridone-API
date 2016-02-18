@@ -16,10 +16,10 @@ passport.use(new LocalStrategy({
       if (user && user.password !== null && bcrypt.compareSync(password, user.password)) {
         return done(null, user)
       } else {
-        return done(new Error('Invalid email or Password'))
+        return done(new Error('Either email or password are invalid.'))
       }
     }).catch(function(err) {
-      return done(err)
+      return done(new Error('Authentication failed, either email or password is invalid.'))
     })
   }
 ))
@@ -35,7 +35,6 @@ passport.use(new BearerStrategy(function(token, done) {
 
 router.post('/signup', function(req, res, next) {
   findUserByEmail(req.body.email).then(function(user) {
-    console.log('user error: ', user);
     next(new Error('Email is already in use.'))
   }).catch(function(err) {
     if(err.userNotFound) {
@@ -47,7 +46,6 @@ router.post('/signup', function(req, res, next) {
           })
         })
       }).catch(function(err) {
-        console.log('create user error: ', err);
         next(err)
       })
     } else {
@@ -70,7 +68,7 @@ router.post('/login', function(req, res, next) {
         })
       })
     } else {
-      next('Invalid Login')
+      return next(new Error('Login credentials are invalid.'))
     }
   })(req, res, next)
 })
@@ -89,15 +87,15 @@ function findUserByEmail(email) {
 }
 
 function validPassword(pw) {
-  return typeof pw !== 'undefined' && pw !== null && typeof pw == 'string'
+  return typeof pw !== 'undefined' && pw !== null && typeof pw == 'string' && pw.length > 0
 }
 
 function createUser(user) {
   if (!validator.isEmail(user.email)) {
-    return Promise.reject('Invalid email.');
+    return Promise.reject(new Error('The email provided is invalid.'))
   }
   if (!validPassword(user.password)) {
-    return Promise.reject('Password is invalid.')
+    return Promise.reject(new Error('The password provided is invalid.'))
   }
   var hash = bcrypt.hashSync(user.password, 8)
   user.password = hash
@@ -107,17 +105,18 @@ function createUser(user) {
     user._id = results.ops[0]._id
     return user
   }).catch(function(error) {
-    return Promise.reject(error)
+    return Promise.reject(new Error('There was a problem creating the user.'))
   })
 }
 
 function createToken(user) {
   return new Promise(function(resolve, reject) {
     delete user.password
-    var data = {
+    delete user.tasks
+    var tokenData = {
       user: user
     }
-    jwt.sign(data, process.env.TOKEN_SECRET, { expiresIn: '1d' },
+    jwt.sign(tokenData, process.env.TOKEN_SECRET, { expiresIn: '1d' },
       function(token) {
         resolve(token)
       })
@@ -129,8 +128,20 @@ module.exports = {
   passport: passport,
   authenticate: function(req, res, next) {
     passport.authenticate('bearer', function(err, user, info) {
-      req.user = user
-      next()
+      if (req.url === '/auth/login' || req.url === '/auth/signup') {
+        next()
+      } else {
+        req.user = user
+        if (req.user) {
+          next()
+        } else {
+          res.status(401)
+          res.json({
+            "error": "API call not allowed.",
+            "message": "You must be authenticated to make this API call. Please authenticate."
+          })
+        }
+      }
     })(req, res, next)
   }
 }
